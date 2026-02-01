@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MigrateX - Self-Healing Support Layer</title>
+    <meta name="description"
+        content="Agentic intelligence that detects, diagnoses, and resolves production issues before they become incidents">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Dark Gold + Grey/Black Color Scheme */
+            --primary-gold: #D4AF37;
+            --accent-gold: #FFD700;
+            --light-gold: #F4E4B8;
+            --dark-gold: #B8941F;
+
+            --bg-black: #050505;
+            --bg-dark: #0A0A0A;
+            --bg-grey: #1A1A1A;
+            --bg-light-grey: #2C2C2C;
+
+            --text-primary: #F5F5F5;
+            --text-secondary: #B8B8B8;
+            --text-muted: #808080;
+
+            --border-color: #2C2C2C;
+            --card-bg: #1A1A1A;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-black);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 194px 60px 90px;
+            overflow: hidden;
+        }
+
+        .hero-bg-animation {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 133%;
+            height: 898px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero-gradient-overlay {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 746px;
+            background: linear-gradient(180deg, rgba(5, 5, 5, 0) 0%, rgb(5, 5, 5) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 84px;
+        }
+
+        .hero-text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--bg-light-grey), var(--bg-grey));
+            border: 1px solid var(--border-color);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-gold);
+        }
+
+        .hero-title {
+            font-size: 72px;
+            font-weight: 500;
+            line-height: 1.25;
+            letter-spacing: -1px;
+            max-width: 810px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--light-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .btn-primary {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--primary-gold), var(--dark-gold));
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-black);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            padding: 14px 32px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* Animated background circles */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+            filter: blur(60px);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-circle-1 {
+            width: 600px;
+            height: 600px;
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .bg-circle-2 {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            right: -5%;
+            animation-delay: 5s;
+        }
+
+        .bg-circle-3 {
+            width: 500px;
+            height: 500px;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(20px, -20px);
+            }
+
+            50% {
+                transform: translate(-10px, 10px);
+            }
+
+            75% {
+                transform: translate(15px, 5px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1199px) {
+            .hero-title {
+                font-size: 54px;
+            }
+
+            .hero-section {
+                padding: 160px 32px 60px;
+            }
+        }
+
+        @media (max-width: 809px) {
+            .hero-title {
+                font-size: 35px;
+            }
+
+            .hero-section {
+                padding: 150px 20px 45px;
+            }
+
+            .hero-cta-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <!-- Animated Background -->
+        <div class="hero-bg-animation">
+            <div class="bg-circle bg-circle-1"></div>
+            <div class="bg-circle bg-circle-2"></div>
+            <div class="bg-circle bg-circle-3"></div>
+        </div>
+        <div class="hero-gradient-overlay"></div>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="hero-text-container">
+                <div class="hero-badge">
+                    ✨ Autonomous Support Intelligence
+                </div>
+                <h1 class="hero-title">
+                    Self-Healing Support That Never Sleeps
+                </h1>
+                <p class="hero-description">
+                    Agentic intelligence that detects, diagnoses, and resolves production issues before they become
+                    incidents
+                </p>
+                <div class="hero-cta-group">
+                    <button class="btn-primary">Get Started</button>
+                    <button class="btn-secondary">Watch Demo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IS THIS YOU? Section - Scrolling Problems -->
+    <section class="problems-section">
+        <div class="problems-container">
+            <h2 class="problems-title">Is This You?</h2>
+            <div class="problems-scroll-wrapper">
+                <div class="problems-scroll-track" id="problemsTrack">
+                    <div class="problem-item">Webhook failures cascading across your platform</div>
+                    <div class="problem-item">Customer tickets exploding faster than you can respond</div>
+                    <div class="problem-item">Documentation gaps causing repetitive support questions</div>
+                    <div class="problem-item">API errors creating engineering fire drills</div>
+                    <div class="problem-item">Platform regressions slipping through unnoticed</div>
+                    <div class="problem-item">Support backlog growing despite hiring more agents</div>
+                    <div class="problem-item">Alert fatigue from duplicate incident reports</div>
+                    <div class="problem-item">Manual triage eating up your team's time</div>
+                    <!-- Duplicate for seamless loop -->
+                    <div class="problem-item">Webhook failures cascading across your platform</div>
+                    <div class="problem-item">Customer tickets exploding faster than you can respond</div>
+                    <div class="problem-item">Documentation gaps causing repetitive support questions</div>
+                    <div class="problem-item">API errors creating engineering fire drills</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* IS THIS YOU Section */
+        .problems-section {
+            padding: 90px 60px;
+            background: var(--bg-black);
+            overflow: hidden;
+        }
+
+        .problems-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        .problems-title {
+            font-size: 64px;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .problems-scroll-wrapper {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            mask-image: linear-gradient(to right,
+                    transparent 0%,
+                    black 10%,
+                    black 90%,
+                    transparent 100%);
+            -webkit-mask-image: linear-gradient(to right,
+                    transparent 0%,
+                    black 10%,
+                    black 90%,
+                    transparent 100%);
+        }
+
+        .problems-scroll-track {
+            display: flex;
+            gap: 32px;
+            animation: scroll-problems 40s linear infinite;
+            will-change: transform;
+        }
+
+        .problem-item {
+            flex-shrink: 0;
+            padding: 24px 40px;
+            background: linear-gradient(135deg, var(--bg-light-grey), var(--bg-grey));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .problem-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-gold);
+            color: var(--accent-gold);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+        }
+
+        @keyframes scroll-problems {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Pause animation on hover */
+        .problems-scroll-wrapper:hover .problems-scroll-track {
+            animation-play-state: paused;
+        }
+
+        @media (max-width: 1199px) {
+            .problems-title {
+                font-size: 48px;
+            }
+
+            .problems-section {
+                padding: 60px 32px;
+            }
+
+            .problem-item {
+                font-size: 18px;
+                padding: 20px 32px;
+            }
+        }
+
+        @media (max-width: 809px) {
+            .problems-title {
+                font-size: 32px;
+            }
+
+            .problems-section {
+                padding: 46px 20px;
+            }
+
+            .problem-item {
+                font-size: 16px;
+                padding: 16px 24px;
+            }
+        }
+    </style>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="features-container">
+            <div class="features-header">
+                <h2 class="section-title">How MigrateX Works</h2>
+                <p class="section-description">
+                    Autonomous intelligence that transforms your support operations
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <!-- Feature 1: Autonomous Detection -->
+                <div class="feature-card">
+                    <div class="feature-gradient-border">
+                        <div class="feature-content">
+                            <div class="feature-icon-wrapper">
+                                <div class="feature-icon">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M20 5L25 15L35 15L27.5 22.5L30 32.5L20 27.5L10 32.5L12.5 22.5L5 15L15 15L20 5Z"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">Autonomous Detection</h3>
+                            <p class="feature-description">
+                                Real-time signal ingestion from webhooks, APIs, and support tickets. Pattern recognition
+                                across thousands of events to identify emerging issues before they escalate.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Intelligent Classification -->
+                <div class="feature-card">
+                    <div class="feature-gradient-border">
+                        <div class="feature-content">
+                            <div class="feature-icon-wrapper">
+                                <div class="feature-icon">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 5V35M5 20H35M10 10L30 30M30 10L10 30" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">Intelligent Classification</h3>
+                            <p class="feature-description">
+                                Risk-based assessment and automated decision routing. Distinguishes between platform
+                                regressions, documentation gaps, and merchant-specific issues with precision.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 3: Self-Healing Actions -->
+                <div class="feature-card">
+                    <div class="feature-gradient-border">
+                        <div class="feature-content">
+                            <div class="feature-icon-wrapper">
+                                <div class="feature-icon">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M20 10V30M15 25L20 30L25 25M20 5C12 5 10 10 10 15C10 20 15 25 20 30C25 25 30 20 30 15C30 10 28 5 20 5Z"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="feature-title">Self-Healing Actions</h3>
+                            <p class="feature-description">
+                                Automatic resolution for known issues with full audit trails. Human oversight for
+                                critical decisions. Continuous learning from each interaction.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Features Section */
+        .features-section {
+            padding: 90px 60px;
+            background: var(--bg-black);
+            position: relative;
+        }
+
+        .features-container {
+            max-width: 1228px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        .features-header {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 500;
+            letter-spacing: -1px;
+            line-height: 1.25;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .feature-card {
+            position: relative;
+            border-radius: 23px;
+            background: linear-gradient(180deg, var(--bg-light-grey) 0%, var(--bg-grey) 100%);
+            padding: 1px;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.2);
+        }
+
+        .feature-gradient-border {
+            border-radius: 23px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .feature-content {
+            background: radial-gradient(46% 31% at 50% 0%, var(--bg-light-grey) 0%, var(--bg-grey) 100%);
+            border-radius: 23px;
+            padding: 32px 32px 42px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            min-height: 100%;
+        }
+
+        .feature-icon-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .feature-icon {
+            width: 76px;
+            height: 76px;
+            border-radius: 100px;
+            background: linear-gradient(1deg, var(--dark-gold) 9%, var(--dark-gold) 60%, var(--primary-gold) 91%);
+            border: 1px solid var(--primary-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-black);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        @media (max-width: 1199px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .features-section {
+                padding: 60px 32px;
+            }
+
+            .section-title {
+                font-size: 38px;
+            }
+        }
+
+        @media (max-width: 809px) {
+            .features-section {
+                padding: 46px 20px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <!-- Final CTA Section -->
+    <section class="cta-section">
+        <div class="cta-container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Transform Your Support?</h2>
+                <p class="cta-description">
+                    Join teams already using MigrateX to detect, diagnose, and resolve issues autonomously
+                </p>
+                <div class="cta-buttons">
+                    <button class="btn-primary">Start Free Trial</button>
+                    <button class="btn-secondary">Schedule Demo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3 class="footer-logo">MigrateX</h3>
+                    <p class="footer-tagline">Self-Healing Support Intelligence</p>
+                </div>
+                <div class="footer-copy">
+                    <p>&copy; 2026 MigrateX. Autonomous support that never sleeps.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 60px;
+            background: linear-gradient(135deg, var(--bg-grey) 0%, var(--bg-black) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .cta-title {
+            font-size: 52px;
+            font-weight: 500;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-description {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 60px 40px;
+            background: var(--bg-black);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-container {
+            max-width: 1228px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            text-align: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-tagline {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 1199px) {
+            .cta-section {
+                padding: 80px 32px;
+            }
+
+            .cta-title {
+                font-size: 42px;
+            }
+
+            .footer {
+                padding: 50px 32px 30px;
+            }
+        }
+
+        @media (max-width: 809px) {
+            .cta-section {
+                padding: 60px 20px;
+            }
+
+            .cta-title {
+                font-size: 32px;
+            }
+
+            .cta-description {
+                font-size: 18px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .cta-buttons .btn-primary,
+            .cta-buttons .btn-secondary {
+                width: 100%;
+            }
+
+            .footer {
+                padding: 40px 20px 30px;
+            }
+        }
+    </style>
+
+</body>
+
+</html>
